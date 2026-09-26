@@ -13,6 +13,7 @@ const filterCategories = [
   { id: 'all', label: 'All Projects' },
   { id: 'living-room', label: 'Living Room' },
   { id: 'bedroom', label: 'Bedroom' },
+  { id: 'kitchen', label: 'Kitchen' },
   { id: 'full-home', label: 'Full Home' },
   { id: 'furniture', label: 'Furniture' }
 ];

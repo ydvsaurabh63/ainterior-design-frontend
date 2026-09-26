@@ -80,6 +80,29 @@ const Navbar = () => {
               </NavLink>
 
               <NavLink
+                to="/projects"
+                className={({ isActive }) =>
+                  `text-xs uppercase tracking-[0.18em] font-medium transition-colors duration-200 py-1 relative ${
+                    isActive
+                      ? 'text-studio-bronze font-semibold'
+                      : 'text-studio-charcoal hover:text-studio-bronze'
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    Portfolio
+                    {isActive && (
+                      <motion.span
+                        layoutId="navIndicator"
+                        className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-studio-bronze"
+                      />
+                    )}
+                  </>
+                )}
+              </NavLink>
+
+              <NavLink
                 to="/about"
                 className={({ isActive }) =>
                   `text-xs uppercase tracking-[0.18em] font-medium transition-colors duration-200 py-1 relative ${
@@ -165,6 +188,17 @@ const Navbar = () => {
                     }
                   >
                     <span>Home</span>
+                    <ChevronRight className="w-4 h-4 opacity-60" />
+                  </NavLink>
+                  <NavLink
+                    to="/projects"
+                    className={({ isActive }) =>
+                      `text-lg font-serif tracking-wide py-2.5 border-b border-studio-border/60 flex items-center justify-between ${
+                        isActive ? 'text-studio-bronze font-semibold' : 'text-studio-charcoal'
+                      }`
+                    }
+                  >
+                    <span>Portfolio</span>
                     <ChevronRight className="w-4 h-4 opacity-60" />
                   </NavLink>
                   <NavLink
