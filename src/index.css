@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#F5F2EB] text-[#1A1D1A] font-sans antialiased font-normal;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, .font-serif, .font-heading {
+    font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F5F2EB;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #DDD2BD;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #C6853E;
+}
+
+/* Smooth glass effect */
+.glass-nav {
+  background: rgba(245, 242, 235, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(226, 218, 203, 0.8);
+}
+
+.glass-card {
+  background: rgba(250, 248, 245, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(226, 218, 203, 0.75);
+}
+
+.glass-dark {
+  background: rgba(20, 23, 20, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Warm architectural backlight halo effect like the 3D logo arch */
+.arch-glow {
+  box-shadow: 0 0 35px -5px rgba(222, 155, 82, 0.35);
+}
+
+.halo-glow {
+  box-shadow: 0 0 25px rgba(232, 179, 114, 0.4);
+}
