@@ -20,7 +20,7 @@ const BeforeAfterSlider = ({ originalImage, generatedImage, roomType, styleName 
     try {
       e.currentTarget.setPointerCapture(e.pointerId);
     } catch (err) {
-      // pointer capture fallback
+      // ignore
     }
   };
 
@@ -35,7 +35,7 @@ const BeforeAfterSlider = ({ originalImage, generatedImage, roomType, styleName 
     try {
       e.currentTarget.releasePointerCapture(e.pointerId);
     } catch (err) {
-      // release capture fallback
+      // ignore
     }
   };
 

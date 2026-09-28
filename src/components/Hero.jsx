@@ -8,7 +8,6 @@ const scenes = [
     id: 'house',
     label: '3D House Walkthrough',
     src: '/videos/modern-house.mp4',
-    fallbackSrc: 'https://assets.mixkit.co/videos/27543/27543-720.mp4',
     poster: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=90',
     tag: 'Architectural 3D Tour'
   },
@@ -16,7 +15,6 @@ const scenes = [
     id: 'interior',
     label: 'Luxury Interior Suite',
     src: '/videos/luxury-interior.mp4',
-    fallbackSrc: 'https://assets.mixkit.co/videos/4196/4196-720.mp4',
     poster: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=2000&q=90',
     tag: 'Bespoke Living Space'
   }
@@ -50,7 +48,6 @@ const Hero = () => {
           className="w-full h-full object-cover object-center scale-105 transition-opacity duration-1000"
         >
           <source src={activeScene.src} type="video/mp4" />
-          <source src={activeScene.fallbackSrc} type="video/mp4" />
         </video>
 
         {/* Lightened, subtle overlay so background video is clearly visible */}

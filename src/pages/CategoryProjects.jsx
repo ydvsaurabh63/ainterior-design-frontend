@@ -8,7 +8,6 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { getCategoryBySlug, categories } from '../data/categories';
-import { fallbackProjects } from '../data/fallbackProjects';
 import { projectApi } from '../services/api';
 import ProjectCard from '../components/ProjectCard';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -22,22 +21,22 @@ const CategoryProjects = () => {
     return <Navigate to="/projects" replace />;
   }
 
-  const initialCategoryProjects = fallbackProjects.filter(p => p.category === category.slug);
-  const [projects, setProjects] = useState(initialCategoryProjects);
-  const [loading, setLoading] = useState(false);
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchCategoryProjects = async () => {
+      setLoading(true);
       try {
         const data = await projectApi.getAll({ category: category.slug });
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           setProjects(data);
         } else {
-          setProjects(fallbackProjects.filter(p => p.category === category.slug));
+          setProjects([]);
         }
       } catch (err) {
-        console.warn('Using seeded category data:', err.message);
-        setProjects(fallbackProjects.filter(p => p.category === category.slug));
+        console.error('Error fetching category projects:', err.message);
+        setProjects([]);
       } finally {
         setLoading(false);
       }

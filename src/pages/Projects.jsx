@@ -6,14 +6,12 @@ import SectionTitle from '../components/SectionTitle';
 import ProjectCard from '../components/ProjectCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ContactCTA from '../components/ContactCTA';
-import { fallbackProjects } from '../data/fallbackProjects';
 import { projectApi } from '../services/api';
 
 const filterCategories = [
   { id: 'all', label: 'All Projects' },
   { id: 'living-room', label: 'Living Room' },
   { id: 'bedroom', label: 'Bedroom' },
-  { id: 'kitchen', label: 'Kitchen' },
   { id: 'full-home', label: 'Full Home' },
   { id: 'furniture', label: 'Furniture' }
 ];
@@ -24,8 +22,8 @@ const Projects = () => {
 
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [searchQuery, setSearchQuery] = useState('');
-  const [projects, setProjects] = useState(fallbackProjects);
-  const [loading, setLoading] = useState(false);
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const categoryFromUrl = searchParams.get('category') || 'all';
@@ -34,6 +32,7 @@ const Projects = () => {
 
   useEffect(() => {
     const fetchProjects = async () => {
+      setLoading(true);
       try {
         const params = {};
         if (activeCategory !== 'all') {
@@ -43,28 +42,14 @@ const Projects = () => {
           params.search = searchQuery.trim();
         }
         const data = await projectApi.getAll(params);
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           setProjects(data);
-        } else if (!searchQuery.trim()) {
-          // Filter fallback by category
-          const filtered = activeCategory === 'all'
-            ? fallbackProjects
-            : fallbackProjects.filter(p => p.category === activeCategory);
-          setProjects(filtered);
         } else {
           setProjects([]);
         }
       } catch (err) {
-        console.warn('Using seeded data for projects filter:', err.message);
-        const filtered = fallbackProjects.filter(p => {
-          const matchCat = activeCategory === 'all' || p.category === activeCategory;
-          const matchSearch = !searchQuery.trim() || 
-            p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            p.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            p.style.toLowerCase().includes(searchQuery.toLowerCase());
-          return matchCat && matchSearch;
-        });
-        setProjects(filtered);
+        console.error('Error fetching projects:', err.message);
+        setProjects([]);
       } finally {
         setLoading(false);
       }

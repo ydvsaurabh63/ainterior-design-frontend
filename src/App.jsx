@@ -72,7 +72,6 @@ function App() {
           {/* Dedicated Category Listing Routes */}
           <Route path="/projects/living-room" element={<CategoryProjects />} />
           <Route path="/projects/bedroom" element={<CategoryProjects />} />
-          <Route path="/projects/kitchen" element={<CategoryProjects />} />
           <Route path="/projects/full-home" element={<CategoryProjects />} />
           <Route path="/projects/furniture" element={<CategoryProjects />} />
           <Route path="/projects/:categorySlug" element={<CategoryProjects />} />

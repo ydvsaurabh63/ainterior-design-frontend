@@ -129,4 +129,16 @@ export const dashboardApi = {
   }
 };
 
+// Popular Items Services (Customer Try-on)
+export const popularItemApi = {
+  getAll: async () => {
+    const response = await api.get('/popular-items');
+    return response.data;
+  },
+  getById: async (id) => {
+    const response = await api.get(`/popular-items/${id}`);
+    return response.data;
+  }
+};
+
 export default api;

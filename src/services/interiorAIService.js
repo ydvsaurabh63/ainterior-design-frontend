@@ -10,24 +10,12 @@ export const interiorAIService = {
    * @returns {Promise<Object>} API response data
    */
   generateRoomDesign: async (formData) => {
-    try {
-      const response = await api.post('/interior/redesign', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      return response.data;
-    } catch (err) {
-      if (err.response && err.response.status === 404) {
-        const fallbackResponse = await api.post('/redesign-room', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        });
-        return fallbackResponse.data;
+    const response = await api.post('/interior/redesign', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
       }
-      throw err;
-    }
+    });
+    return response.data;
   }
 };
 

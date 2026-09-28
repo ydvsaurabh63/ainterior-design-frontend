@@ -45,21 +45,6 @@ export const categories = [
     features: ['Complete Turnkey Execution', 'Structural Spatial Planning', 'Custom Commissioned Artwork', 'Full Smart Home Integration']
   },
   {
-    id: 'kitchen',
-    slug: 'kitchen',
-    title: 'Kitchen',
-    tagline: 'Culinary Masterpieces',
-    description: 'Monolithic travertine islands, fumed oak cabinetry, integrated chef-grade appliances, and tailored ergonomic storage.',
-    heroImage: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1600&q=85',
-    thumbnail: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=800&q=80',
-    stats: {
-      projectsCount: '32+',
-      awardWinning: '6 Awards',
-      avgTimeline: '3-5 Weeks'
-    },
-    features: ['Waterfall Natural Stone Islands', 'Concealed Butler Pantries', 'Integrated Smart Appliances', 'Architectural Task Lighting']
-  },
-  {
     id: 'furniture',
     slug: 'furniture',
     title: 'Furniture',

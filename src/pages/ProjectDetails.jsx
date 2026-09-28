@@ -17,7 +17,6 @@ import {
   Share2
 } from 'lucide-react';
 import { projectApi } from '../services/api';
-import { fallbackProjects } from '../data/fallbackProjects';
 import ProjectCard from '../components/ProjectCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ContactCTA from '../components/ContactCTA';
@@ -34,18 +33,15 @@ const ProjectDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // Find fallback match immediately so no blank flash
-  const fallbackMatch = fallbackProjects.find(p => p._id === id || p.slug === id) || fallbackProjects[0];
-  const [project, setProject] = useState(fallbackMatch);
-  const [relatedProjects, setRelatedProjects] = useState(
-    fallbackProjects.filter(p => p.category === fallbackMatch.category && p._id !== fallbackMatch._id).slice(0, 3)
-  );
-  const [loading, setLoading] = useState(false);
+  const [project, setProject] = useState(null);
+  const [relatedProjects, setRelatedProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [activeLightboxIndex, setActiveLightboxIndex] = useState(null);
 
   useEffect(() => {
     const fetchProjectDetails = async () => {
       window.scrollTo(0, 0);
+      setLoading(true);
       try {
         const data = await projectApi.getById(id);
         if (data && data.project) {
@@ -53,14 +49,15 @@ const ProjectDetails = () => {
           setRelatedProjects(data.related || []);
         } else if (data && data.title) {
           setProject(data);
+          setRelatedProjects(data.related || []);
+        } else {
+          setProject(null);
+          setRelatedProjects([]);
         }
       } catch (err) {
-        console.warn('Using seeded project details:', err.message);
-        const match = fallbackProjects.find(p => p._id === id || p.slug === id) || fallbackProjects[0];
-        setProject(match);
-        setRelatedProjects(
-          fallbackProjects.filter(p => p.category === match.category && p._id !== match._id).slice(0, 3)
-        );
+        console.error('Error fetching project details:', err.message);
+        setProject(null);
+        setRelatedProjects([]);
       } finally {
         setLoading(false);
       }
@@ -68,6 +65,14 @@ const ProjectDetails = () => {
 
     fetchProjectDetails();
   }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-studio-bg pt-32 px-4 flex flex-col items-center justify-center">
+        <LoadingSpinner text="Loading project details..." />
+      </div>
+    );
+  }
 
   if (!project) {
     return (

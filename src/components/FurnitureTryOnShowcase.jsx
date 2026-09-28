@@ -16,6 +16,7 @@ import {
   Info
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { popularItemApi } from '../services/api';
 import { furnitureTryOnItems } from '../data/furnitureTryOnItems';
 
 const FurnitureTryOnShowcase = () => {
@@ -25,13 +26,40 @@ const FurnitureTryOnShowcase = () => {
   const isPausedRef = useRef(false);
   const resumeTimeoutRef = useRef(null);
 
-  // Duplicate items for seamless infinite marquee loop
-  const displayItems = [...furnitureTryOnItems, ...furnitureTryOnItems];
+  // Dynamic products list from database / fallback
+  const [itemsList, setItemsList] = useState(furnitureTryOnItems);
 
   // Default active item is LILLEHEM (item 5, index 4) as in the reference image
   const [selectedItem, setSelectedItem] = useState(
-    furnitureTryOnItems.find((item) => item.defaultSelected) || furnitureTryOnItems[4]
+    furnitureTryOnItems.find((item) => item.defaultSelected) || furnitureTryOnItems[4] || furnitureTryOnItems[0]
   );
+
+  // Duplicate items for seamless infinite marquee loop
+  const displayItems = itemsList.length > 0 ? [...itemsList, ...itemsList] : [];
+
+  // Fetch popular items added by superadmin/admin
+  useEffect(() => {
+    const fetchPopularItems = async () => {
+      try {
+        const data = await popularItemApi.getAll();
+        if (Array.isArray(data) && data.length > 0) {
+          setItemsList(data);
+          // Keep active selection or set to first item
+          setSelectedItem((prev) => {
+            if (!prev) return data[0];
+            const found = data.find(
+              (i) => (i._id && i._id === prev._id) || (i.id && i.id === prev.id) || i.name === prev.name
+            );
+            return found || data[0];
+          });
+        }
+      } catch (err) {
+        console.warn('Could not load popular items from server, using defaults:', err);
+      }
+    };
+
+    fetchPopularItems();
+  }, []);
 
   const [productUrl, setProductUrl] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -141,7 +169,7 @@ const FurnitureTryOnShowcase = () => {
     ? customRoomImage
     : viewMode === 'empty'
     ? '/sample-rooms/room-showcase.jpg'
-    : selectedItem.roomImage || '/sample-rooms/room-furnished-sofa.jpg';
+    : selectedItem.roomImage || selectedItem.image || selectedItem.mainImage || '/sample-rooms/room-furnished-sofa.jpg';
 
   return (
     <section className="relative bg-[#FAF9F5] border-b border-neutral-200/80 pt-10 pb-14 sm:pt-14 sm:pb-20 overflow-hidden font-sans">
@@ -373,10 +401,10 @@ const FurnitureTryOnShowcase = () => {
 
                     {/* Tooltip on hover */}
                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2.5 bg-neutral-950/95 text-white text-xs rounded-xl shadow-2xl border border-white/10 opacity-0 group-hover/spot:opacity-100 transition-opacity pointer-events-none backdrop-blur-md">
-                      <p className="font-bold text-white text-[11px] truncate">{selectedItem.name}</p>
+                      <p className="font-bold text-white text-[11px] truncate">{selectedItem.name || selectedItem.title}</p>
                       <div className="flex justify-between items-center text-[10px] text-neutral-300 mt-1">
-                        <span>{selectedItem.brand}</span>
-                        <span className="text-[#a3e635] font-mono font-semibold">{selectedItem.price}</span>
+                        <span>{selectedItem.brand || 'Aura Studio'}</span>
+                        <span className="text-[#a3e635] font-mono font-semibold">{selectedItem.price || 'Featured'}</span>
                       </div>
                     </div>
                   </div>
@@ -389,14 +417,14 @@ const FurnitureTryOnShowcase = () => {
                   <div className="flex items-center gap-1.5 sm:gap-3.5 min-w-0">
                     {/* Brand Pill */}
                     <span className="bg-white text-neutral-950 text-[9px] sm:text-xs font-black px-1.5 py-0.5 sm:px-2 rounded tracking-wider uppercase flex-shrink-0">
-                      {selectedItem.brand}
+                      {selectedItem.brand || 'Aura Studio'}
                     </span>
 
                     {/* Product Name & Dimensions */}
                     <div className="truncate text-[11px] sm:text-sm font-medium text-neutral-100 flex items-center gap-1.5">
-                      <span className="truncate">{selectedItem.name}</span>
+                      <span className="truncate">{selectedItem.name || selectedItem.title}</span>
                       <span className="font-mono text-[9px] sm:text-xs text-[#a3e635] font-normal flex-shrink-0">
-                        {selectedItem.dimensions}
+                        {selectedItem.dimensions || 'Bespoke Space'}
                       </span>
                     </div>
                   </div>
@@ -459,10 +487,21 @@ const FurnitureTryOnShowcase = () => {
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {displayItems.map((item, idx) => {
-              const isSelected = selectedItem.id === item.id;
+              const itemId = item._id || item.id || `item-${idx}`;
+              const itemName = item.name || item.title || 'Studio Project';
+              const itemImg = item.image || item.mainImage || '';
+              const itemBrand = item.brand || 'Aura Studio';
+              const itemTime = item.time || 'Recently';
+
+              const isSelected =
+                (selectedItem?._id && selectedItem._id === item._id) ||
+                (selectedItem?.id && selectedItem.id === item.id) ||
+                (selectedItem?.name && (selectedItem.name === item.name || selectedItem.name === item.title)) ||
+                (selectedItem?.title && (selectedItem.title === item.name || selectedItem.title === item.title));
+
               return (
                 <div
-                  key={`${item.id}-${idx}`}
+                  key={`${itemId}-${idx}`}
                   onClick={() => handleSelectPreset(item)}
                   className={`flex-shrink-0 w-28 sm:w-36 md:w-40 bg-white rounded-xl sm:rounded-2xl p-2 sm:p-2.5 cursor-pointer transition-all duration-200 flex flex-col justify-between select-none ${
                     isSelected
@@ -471,11 +510,11 @@ const FurnitureTryOnShowcase = () => {
                   }`}
                 >
                   {/* Thumbnail Image */}
-                  <div className="w-full h-20 sm:h-28 bg-[#F7F7F6] rounded-lg sm:rounded-xl overflow-hidden flex items-center justify-center p-1.5 sm:p-2 mb-1.5 sm:mb-2 relative">
+                  <div className="w-full h-20 sm:h-28 bg-[#F7F7F6] rounded-lg sm:rounded-xl overflow-hidden flex items-center justify-center p-1 sm:p-1.5 mb-1.5 sm:mb-2 relative">
                     <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform"
+                      src={itemImg}
+                      alt={itemName}
+                      className="w-full h-full object-cover rounded-md group-hover:scale-105 transition-transform"
                       loading="lazy"
                     />
                     {isSelected && (
@@ -485,16 +524,16 @@ const FurnitureTryOnShowcase = () => {
 
                   {/* Brand and Time metadata line */}
                   <div className="flex items-center justify-between text-[9px] sm:text-[10px] text-neutral-400 font-medium mb-1">
-                    <span className="font-bold text-neutral-700 truncate max-w-[55px] sm:max-w-[65px]">{item.brand}</span>
-                    <span className="flex-shrink-0">{item.time}</span>
+                    <span className="font-bold text-neutral-700 truncate max-w-[55px] sm:max-w-[65px]">{itemBrand}</span>
+                    <span className="flex-shrink-0">{itemTime}</span>
                   </div>
 
                   {/* Product Title */}
                   <h4
                     className="text-[10px] sm:text-xs font-semibold text-neutral-800 line-clamp-2 leading-tight"
-                    title={item.name}
+                    title={itemName}
                   >
-                    {item.name}
+                    {itemName}
                   </h4>
                 </div>
               );
