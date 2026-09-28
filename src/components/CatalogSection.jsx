@@ -336,7 +336,7 @@ const CatalogSection = () => {
             <span className="text-[11px] text-studio-muted">5 Specialized Sectors</span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 overflow-x-auto pb-2 scrollbar-none">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3 overflow-x-auto pb-2 scrollbar-none">
             {CLIENT_CATEGORIES.map((cat) => {
               const IconComponent = CATEGORY_ICONS[cat.id] || Package;
               const isSelected = selectedClientCategory === cat.label;
@@ -346,7 +346,7 @@ const CatalogSection = () => {
                   key={cat.id}
                   type="button"
                   onClick={() => handleClientCategorySelect(cat.label)}
-                  className={`group text-left p-3.5 sm:p-4 rounded-2xl border transition-all duration-300 flex flex-col justify-between overflow-hidden relative cursor-pointer ${
+                  className={`group text-left p-3 sm:p-4 rounded-2xl border transition-all duration-300 flex flex-col justify-between overflow-hidden relative cursor-pointer ${
                     isSelected
                       ? 'bg-neutral-900 text-white border-neutral-900 shadow-md ring-1 ring-studio-bronze/40 scale-[1.01]'
                       : 'bg-white text-neutral-800 border-neutral-200 hover:border-studio-bronze hover:bg-neutral-50/80'
@@ -358,7 +358,7 @@ const CatalogSection = () => {
 
                   <div className="space-y-2 mb-3">
                     <div
-                      className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors border ${
+                      className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-colors border ${
                         isSelected
                           ? 'bg-neutral-800 text-studio-bronze border-neutral-700'
                           : 'bg-neutral-100 text-neutral-700 border-neutral-200 group-hover:text-studio-bronze'
@@ -368,11 +368,11 @@ const CatalogSection = () => {
                     </div>
 
                     <div>
-                      <h3 className="font-bold text-xs sm:text-[13px] leading-snug tracking-tight">
+                      <h3 className="font-bold text-xs sm:text-[13px] leading-snug tracking-tight line-clamp-1">
                         {cat.label}
                       </h3>
                       <span
-                        className={`text-[10px] block mt-1 line-clamp-1 ${
+                        className={`text-[9px] sm:text-[10px] block mt-1 line-clamp-1 ${
                           isSelected ? 'text-neutral-400' : 'text-studio-muted'
                         }`}
                       >
@@ -381,8 +381,8 @@ const CatalogSection = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-current/10 text-[10px] font-semibold">
-                    <span>{cat.objects.length} Object Types</span>
+                  <div className="flex items-center justify-between pt-2 border-t border-current/10 text-[9px] sm:text-[10px] font-semibold">
+                    <span>{cat.objects.length} Objects</span>
                     {isSelected ? (
                       <CheckCircle2 className="w-3.5 h-3.5 text-studio-bronze" />
                     ) : (
