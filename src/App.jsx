@@ -10,6 +10,7 @@ import About from './pages/About';
 import Projects from './pages/Projects';
 import CategoryProjects from './pages/CategoryProjects';
 import ProjectDetails from './pages/ProjectDetails';
+import Catalog from './pages/Catalog';
 import Contact from './pages/Contact';
 import NotFound from './pages/NotFound';
 
@@ -78,6 +79,9 @@ function App() {
 
           {/* Project Details */}
           <Route path="/project/:id" element={<ProjectDetails />} />
+
+          {/* Catalog Module (5 Client Categories & Dynamic Objects) */}
+          <Route path="/catalog" element={<Catalog />} />
 
           {/* Contact & Consultation */}
           <Route path="/contact" element={<Contact />} />

@@ -107,7 +107,7 @@ const Hero = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.1 }}
-          className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl tracking-tight font-extrabold text-white leading-[1.12] sm:leading-[1.05] mb-4 sm:mb-6 drop-shadow-lg px-1 sm:px-2"
+          className="text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl tracking-tight font-extrabold text-white leading-[1.15] mb-3 sm:mb-5 drop-shadow-lg px-1 sm:px-2"
         >
           Designing Spaces That <br className="hidden sm:inline" />
           <span className="font-extrabold text-studio-bronzeLight">Feel Like Home</span>
@@ -117,7 +117,7 @@ const Hero = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
-          className="max-w-2xl mx-auto text-xs sm:text-base md:text-lg lg:text-xl text-stone-300 font-light leading-relaxed mb-6 sm:mb-10 px-2 sm:px-4 drop-shadow"
+          className="max-w-xl mx-auto text-xs sm:text-sm md:text-base text-stone-300 font-light leading-relaxed mb-6 sm:mb-8 px-2 sm:px-4 drop-shadow"
         >
           Thoughtfully designed interiors crafted around your lifestyle, comfort and personality.
         </motion.p>
@@ -127,18 +127,18 @@ const Hero = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.3 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-5 w-full max-w-xs sm:max-w-none mx-auto"
+          className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-4 w-full max-w-xs sm:max-w-none mx-auto"
         >
           <Link
             to="/about"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-white text-studio-charcoal text-xs uppercase tracking-[0.18em] sm:tracking-[0.2em] font-semibold hover:bg-studio-bronze hover:text-white transition-all duration-300 shadow-2xl"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-5 sm:px-7 py-2.5 sm:py-3.5 bg-white text-studio-charcoal text-xs uppercase tracking-[0.18em] sm:tracking-[0.2em] font-semibold hover:bg-studio-bronze hover:text-white transition-all duration-300 shadow-2xl"
           >
             <span>Discover Studio</span>
-            <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
           <button
             onClick={() => setActiveSceneIndex((prev) => (prev === 0 ? 1 : 0))}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-white/10 hover:bg-white/20 text-white border border-white/20 text-xs uppercase tracking-[0.18em] sm:tracking-[0.2em] font-medium backdrop-blur-md transition-all duration-300"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 sm:px-7 py-2.5 sm:py-3.5 bg-white/10 hover:bg-white/20 text-white border border-white/20 text-xs uppercase tracking-[0.18em] sm:tracking-[0.2em] font-medium backdrop-blur-md transition-all duration-300"
           >
             <Eye className="w-3.5 h-3.5 text-studio-bronzeLight" />
             <span>Switch 3D View</span>
@@ -150,23 +150,23 @@ const Hero = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.5 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-6 pt-6 sm:pt-14 mt-6 sm:mt-10 border-t border-white/15 text-white max-w-4xl mx-auto backdrop-blur-xs"
+          className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-6 pt-5 sm:pt-10 mt-5 sm:mt-8 border-t border-white/15 text-white max-w-3xl mx-auto backdrop-blur-xs"
         >
           <div className="p-1.5 sm:p-2">
-            <p className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight">150+</p>
-            <p className="text-[9px] sm:text-[11px] uppercase tracking-wider text-stone-300 font-semibold mt-0.5">Homes Transformed</p>
+            <p className="text-lg sm:text-xl md:text-2xl font-extrabold text-white tracking-tight">150+</p>
+            <p className="text-[9px] sm:text-[10px] uppercase tracking-wider text-stone-300 font-semibold mt-0.5">Homes Transformed</p>
           </div>
           <div className="p-1.5 sm:p-2">
-            <p className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight">12+</p>
-            <p className="text-[9px] sm:text-[11px] uppercase tracking-wider text-stone-300 font-semibold mt-0.5">Years of Craft</p>
+            <p className="text-lg sm:text-xl md:text-2xl font-extrabold text-white tracking-tight">12+</p>
+            <p className="text-[9px] sm:text-[10px] uppercase tracking-wider text-stone-300 font-semibold mt-0.5">Years of Craft</p>
           </div>
           <div className="p-1.5 sm:p-2">
-            <p className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight">100%</p>
-            <p className="text-[9px] sm:text-[11px] uppercase tracking-wider text-stone-300 font-semibold mt-0.5">Turnkey Handover</p>
+            <p className="text-lg sm:text-xl md:text-2xl font-extrabold text-white tracking-tight">100%</p>
+            <p className="text-[9px] sm:text-[10px] uppercase tracking-wider text-stone-300 font-semibold mt-0.5">Turnkey Handover</p>
           </div>
           <div className="p-1.5 sm:p-2">
-            <p className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight">25+</p>
-            <p className="text-[9px] sm:text-[11px] uppercase tracking-wider text-stone-300 font-semibold mt-0.5">Design Accolades</p>
+            <p className="text-lg sm:text-xl md:text-2xl font-extrabold text-white tracking-tight">25+</p>
+            <p className="text-[9px] sm:text-[10px] uppercase tracking-wider text-stone-300 font-semibold mt-0.5">Design Accolades</p>
           </div>
         </motion.div>
       </div>

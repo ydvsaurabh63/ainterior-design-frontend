@@ -9,6 +9,7 @@ import {
 import Hero from '../components/Hero';
 import FurnitureTryOnShowcase from '../components/FurnitureTryOnShowcase';
 import FurniturePairingShowcase from '../components/FurniturePairingShowcase';
+import CatalogSection from '../components/CatalogSection';
 import SectionTitle from '../components/SectionTitle';
 
 const Home = () => {
@@ -46,7 +47,10 @@ const Home = () => {
       {/* 3. Furniture Pairing / "Not sure what goes with what?" */}
       <FurniturePairingShowcase />
 
-      {/* 4. Why Choose Us Section */}
+      {/* 4. CATALOG MODULE (5 Client Categories & Dynamic Objects) */}
+      <CatalogSection />
+
+      {/* 5. Why Choose Us Section */}
       <section className="py-16 sm:py-20 md:py-28 bg-white border-y border-studio-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionTitle

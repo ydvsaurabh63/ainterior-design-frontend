@@ -141,4 +141,47 @@ export const popularItemApi = {
   }
 };
 
+// Room Designs (DECORE UR ROOM WITHOUT BUY IT)
+export const roomDesignApi = {
+  getByCategory: async (category) => {
+    const params = category && category !== 'all' ? { category } : {};
+    const response = await api.get('/room-designs', { params });
+    return response.data;
+  },
+  getAll: async () => {
+    const response = await api.get('/room-designs');
+    return response.data;
+  }
+};
+
+// Catalog Module Services
+export const catalogApi = {
+  getAll: async (params = {}) => {
+    try {
+      const response = await api.get('/catalog', { params });
+      return response.data;
+    } catch (err) {
+      try {
+        const localRes = await axios.get('http://localhost:5000/api/catalog', { params });
+        return localRes.data;
+      } catch (lErr) {
+        return [];
+      }
+    }
+  },
+  getById: async (id) => {
+    try {
+      const response = await api.get(`/catalog/${id}`);
+      return response.data;
+    } catch (err) {
+      try {
+        const localRes = await axios.get(`http://localhost:5000/api/catalog/${id}`);
+        return localRes.data;
+      } catch (lErr) {
+        return null;
+      }
+    }
+  }
+};
+
 export default api;
