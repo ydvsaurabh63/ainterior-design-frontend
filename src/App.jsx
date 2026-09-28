@@ -16,7 +16,7 @@ import NotFound from './pages/NotFound';
 
 // Redirect helper for old admin links to the new standalone admin panel
 const AdminPortalRedirect = () => {
-  const adminUrl = import.meta.env.VITE_ADMIN_URL || 'http://localhost:5174';
+  const adminUrl = import.meta.env.VITE_ADMIN_URL || 'https://ainterior-design-adminpanel.vercel.app';
 
   React.useEffect(() => {
     window.location.href = adminUrl;

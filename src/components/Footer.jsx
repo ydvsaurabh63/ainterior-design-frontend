@@ -103,7 +103,7 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href={import.meta.env.VITE_ADMIN_URL || 'http://localhost:5174/login'}
+                  href={import.meta.env.VITE_ADMIN_URL || 'https://ainterior-design-adminpanel.vercel.app'}
                   target="_blank"
                   rel="noreferrer"
                   className="text-stone-500 hover:text-stone-300 text-xs transition-colors"
@@ -199,7 +199,7 @@ const Footer = () => {
             <span>Noida • Delhi NCR • India</span>
             <span className="hidden sm:inline">•</span>
             <a
-              href={import.meta.env.VITE_ADMIN_URL || 'http://localhost:5174/login'}
+              href={import.meta.env.VITE_ADMIN_URL || 'https://ainterior-design-adminpanel.vercel.app'}
               target="_blank"
               rel="noreferrer"
               className="hover:text-stone-300 transition-colors"
