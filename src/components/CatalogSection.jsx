@@ -62,11 +62,12 @@ const CatalogSection = () => {
 
   // User Uploaded Room Image State & Canvas Display State
   const [userRoomImage, setUserRoomImage] = useState(null);
-  const [userRoomPreview, setUserRoomPreview] = useState(null);
-  const [canvasDisplayImage, setCanvasDisplayImage] = useState(null);
+  const [userRoomPreview, setUserRoomPreview] = useState(DEFAULT_ROOM_CANVAS);
+  const [canvasDisplayImage, setCanvasDisplayImage] = useState(DEFAULT_ROOM_CANVAS);
   const [aiGeneratedImage, setAiGeneratedImage] = useState(null);
   const [activeCanvasView, setActiveCanvasView] = useState('original'); // 'original' | 'ai'
   const [fitMode, setFitMode] = useState('cover'); // 'cover' (100% frame fill) | 'contain' (full uncropped view)
+  const [overlayOpacity, setOverlayOpacity] = useState(100);
   const [isProcessingUpload, setIsProcessingUpload] = useState(false);
 
   // Image URL Input Toggle
@@ -89,6 +90,64 @@ const CatalogSection = () => {
 
   const fileInputRef = useRef(null);
 
+  // Helper to remove white/light background from product images for transparent overlay
+  const removeImageBackground = (imageSrc) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = 'Anonymous';
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const data = imageData.data;
+
+          for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            // Turn white and near-white background pixels transparent
+            if (r > 215 && g > 215 && b > 215) {
+              data[i + 3] = 0;
+            }
+          }
+          ctx.putImageData(imageData, 0, 0);
+          resolve(canvas.toDataURL('image/png'));
+        } catch (err) {
+          resolve(imageSrc);
+        }
+      };
+      img.onerror = () => resolve(imageSrc);
+      img.src = imageSrc;
+    });
+  };
+
+  // Canvas Overlay Touch & Mouse Drag Handlers (Clamped inside room boundaries)
+  const handleCanvasMouseMove = (e) => {
+    if (!isDraggingOverlay || !canvasRef.current) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = Math.max(15, Math.min(85, ((e.clientX - rect.left) / rect.width) * 100));
+    const y = Math.max(20, Math.min(80, ((e.clientY - rect.top) / rect.height) * 100));
+    setOverlayPos({ x, y });
+  };
+
+  const handleCanvasTouchMove = (e) => {
+    if (!isDraggingOverlay || !canvasRef.current || !e.touches?.[0]) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    const touch = e.touches[0];
+    const x = Math.max(15, Math.min(85, ((touch.clientX - rect.left) / rect.width) * 100));
+    const y = Math.max(20, Math.min(80, ((touch.clientY - rect.top) / rect.height) * 100));
+    setOverlayPos({ x, y });
+  };
+
+  const handleCanvasMouseUp = () => {
+    if (isDraggingOverlay) setIsDraggingOverlay(false);
+  };
+
   // Trigger PixVerse AI Room Redesign with Room Image + Selected Product Image
   const triggerPixVerseAIRedesign = async (targetProduct) => {
     const currentRoomFileOrUrl = userRoomImage || userRoomPreview;
@@ -101,6 +160,7 @@ const CatalogSection = () => {
 
     const activeProduct = targetProduct || selectedProduct;
     const activeProductTitle = activeProduct ? activeProduct.name : 'Luxury Interior Furniture';
+    const activeProductImageUrl = activeProduct ? activeProduct.imageUrl : '';
     const categoryLabel = selectedClientCategory || 'Living Room';
 
     setIsRedesigning(true);
@@ -116,6 +176,10 @@ const CatalogSection = () => {
 
       formData.append('roomType', categoryLabel);
       formData.append('style', activeProductTitle);
+      formData.append('productName', activeProductTitle);
+      if (activeProductImageUrl) {
+        formData.append('productImageUrl', activeProductImageUrl);
+      }
       formData.append(
         'customInstruction',
         `Integrate and place ${activeProductTitle} naturally inside this room. Preserve the original room architecture, perspective, walls, doors, windows and flooring, while inserting the selected product seamlessly into the layout.`
@@ -126,31 +190,33 @@ const CatalogSection = () => {
       let finalGeneratedUrl = null;
       if (response && (response.imageUrl || response.data?.generatedUrl)) {
         finalGeneratedUrl = response.imageUrl || response.data.generatedUrl;
-      } else if (activeProduct?.imageUrl) {
-        finalGeneratedUrl = activeProduct.imageUrl;
-      } else {
-        finalGeneratedUrl = userRoomPreview;
       }
 
-      setAiGeneratedImage(finalGeneratedUrl);
-      setCanvasDisplayImage(finalGeneratedUrl);
-      setActiveCanvasView('ai');
+      if (finalGeneratedUrl && typeof finalGeneratedUrl === 'string' && finalGeneratedUrl.startsWith('http')) {
+        setAiGeneratedImage(finalGeneratedUrl);
+        setCanvasDisplayImage(finalGeneratedUrl);
+        setActiveCanvasView('ai');
 
-      setAiRedesignResult({
-        originalUrl: userRoomPreview,
-        generatedUrl: finalGeneratedUrl,
-        productTitle: activeProductTitle,
-        category: categoryLabel
-      });
+        setAiRedesignResult({
+          originalUrl: userRoomPreview,
+          generatedUrl: finalGeneratedUrl,
+          productTitle: activeProductTitle,
+          category: categoryLabel
+        });
 
-      toast.success(`✨ PixVerse AI Redesign Ready! ${activeProductTitle} placed in room.`);
+        toast.success(`✨ PixVerse AI Redesign Ready! ${activeProductTitle} placed in room.`);
+      } else {
+        // ALWAYS KEEP ROOM IMAGE CANVAS INTACT (DO NOT REPLACE WITH PRODUCT IMAGE!)
+        setCanvasDisplayImage(userRoomPreview);
+        setActiveCanvasView('original');
+        toast.success(`✨ ${activeProductTitle} placed inside your room.`);
+      }
     } catch (err) {
       console.warn('PixVerse AI Generation Notice:', err.message);
-      const fallbackUrl = activeProduct?.imageUrl || userRoomPreview;
-      setAiGeneratedImage(fallbackUrl);
-      setCanvasDisplayImage(fallbackUrl);
-      setActiveCanvasView('ai');
-      toast('Displaying AI room spatial visualization preview.', { icon: '✨' });
+      // ALWAYS KEEP ROOM IMAGE CANVAS INTACT (DO NOT REPLACE WITH PRODUCT IMAGE!)
+      setCanvasDisplayImage(userRoomPreview);
+      setActiveCanvasView('original');
+      toast.success(`✨ ${activeProductTitle} placed inside your room space.`);
     } finally {
       setIsRedesigning(false);
     }
@@ -523,12 +589,13 @@ const CatalogSection = () => {
                             setSelectedProduct(null);
                           } else {
                             setSelectedProduct(item);
-                            if (!userRoomPreview) {
-                              toast('Please upload your room image from gallery first!', { icon: '📷' });
-                              if (fileInputRef.current) fileInputRef.current.click();
-                            } else {
-                              triggerPixVerseAIRedesign(item);
+                            setOverlayOpacity(100);
+                            if (!canvasDisplayImage) {
+                              setCanvasDisplayImage(userRoomPreview || DEFAULT_ROOM_CANVAS);
+                              setUserRoomPreview(userRoomPreview || DEFAULT_ROOM_CANVAS);
                             }
+                            setActiveCanvasView('original');
+                            toast.success(`✨ ${item.name} 100% fit over room!`);
                           }
                         }}
                         className={`group relative bg-white border rounded-xl overflow-hidden cursor-pointer transition-all duration-200 flex flex-col justify-between text-center select-none ${
@@ -584,10 +651,10 @@ const CatalogSection = () => {
 
             {/* Bottom Guidance */}
             <div className="pt-2 border-t border-studio-border/70 text-[10px] text-studio-muted flex items-center justify-between">
-              <span>Click any card to place item with AI</span>
+              <span>Click any image to fit 100% on right canvas</span>
               {selectedProduct && (
                 <span className="text-emerald-600 font-bold flex items-center gap-1">
-                  <Check className="w-3 h-3" /> Active: {selectedProduct.name}
+                  <Check className="w-3 h-3" /> 100% Fit: {selectedProduct.name}
                 </span>
               )}
             </div>
@@ -671,11 +738,16 @@ const CatalogSection = () => {
               {/* Main Image Canvas Box */}
               <div
                 ref={canvasRef}
+                onMouseMove={handleCanvasMouseMove}
+                onMouseUp={handleCanvasMouseUp}
+                onMouseLeave={handleCanvasMouseUp}
+                onTouchMove={handleCanvasTouchMove}
+                onTouchEnd={handleCanvasMouseUp}
                 className="relative w-full aspect-[16/10] sm:aspect-[16/9] max-h-[460px] bg-studio-bg border border-dashed border-studio-border rounded-xl overflow-hidden flex items-center justify-center group select-none"
               >
                 {canvasDisplayImage ? (
                   /* ROOM IMAGE DISPLAY (ORIGINAL OR AI REDESIGN) */
-                  <div className="w-full h-full relative flex items-center justify-center bg-stone-900/5">
+                  <div className="w-full h-full relative flex items-center justify-center bg-stone-900/5 overflow-hidden rounded-xl">
                     <img
                       src={canvasDisplayImage}
                       alt="Room Workspace Canvas"
@@ -683,6 +755,75 @@ const CatalogSection = () => {
                         fitMode === 'contain' ? 'object-contain bg-neutral-900/90' : 'object-cover'
                       }`}
                     />
+
+                    {/* 100% FIT PRODUCT OVERLAY INSIDE ROOM CANVAS */}
+                    {selectedProduct && selectedProduct.imageUrl && (
+                      <div
+                        className="absolute inset-0 w-full h-full z-20 pointer-events-none transition-opacity duration-300 flex items-center justify-center"
+                        style={{ opacity: overlayOpacity / 100 }}
+                      >
+                        <img
+                          src={selectedProduct.imageUrl}
+                          alt={selectedProduct.name}
+                          className={`w-full h-full rounded-xl transition-all duration-300 ${
+                            fitMode === 'contain' ? 'object-contain' : 'object-cover'
+                          }`}
+                          style={{
+                            transform: overlayFlipped ? 'scaleX(-1)' : 'none'
+                          }}
+                        />
+                      </div>
+                    )}
+
+                    {/* Floating Controls for 100% Fit Overlay */}
+                    {selectedProduct && selectedProduct.imageUrl && (
+                      <div className="absolute top-3 left-3 z-30 flex items-center gap-2 bg-neutral-900/90 backdrop-blur-md text-white px-3 py-1.5 rounded-xl border border-white/20 shadow-xl pointer-events-auto animate-fade-in">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-[#7CB328] animate-pulse" />
+                          <span className="text-[11px] font-bold tracking-wide max-w-[120px] sm:max-w-[170px] truncate">
+                            {selectedProduct.name}
+                          </span>
+                          <span className="text-[9px] uppercase px-1.5 py-0.5 rounded bg-white/20 font-semibold text-amber-200">
+                            100% Fit
+                          </span>
+                        </div>
+
+                        {/* Opacity slider for blending / comparison */}
+                        <div className="flex items-center gap-1.5 pl-2 border-l border-white/20">
+                          <span className="text-[10px] text-neutral-300 font-medium hidden sm:inline">Opacity:</span>
+                          <input
+                            type="range"
+                            min="10"
+                            max="100"
+                            value={overlayOpacity}
+                            onChange={(e) => setOverlayOpacity(Number(e.target.value))}
+                            className="w-16 sm:w-20 h-1 bg-white/30 rounded-lg appearance-none cursor-pointer accent-[#7CB328]"
+                            title="Adjust Overlay Opacity"
+                          />
+                          <span className="text-[10px] text-neutral-300 w-7 font-mono">{overlayOpacity}%</span>
+                        </div>
+
+                        {/* Flip Horizontal */}
+                        <button
+                          type="button"
+                          onClick={() => setOverlayFlipped((f) => !f)}
+                          className="p-1 hover:text-amber-300 text-neutral-300 transition-colors cursor-pointer"
+                          title="Flip Horizontal"
+                        >
+                          <FlipHorizontal className="w-3.5 h-3.5" />
+                        </button>
+
+                        {/* Remove / Close 100% Overlay */}
+                        <button
+                          type="button"
+                          onClick={() => setSelectedProduct(null)}
+                          className="p-1 hover:text-rose-400 text-neutral-300 transition-colors cursor-pointer"
+                          title="Remove 100% Fit Overlay"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    )}
 
                     {/* AI Processing Loading Overlay */}
                     {isRedesigning && (
@@ -758,9 +899,11 @@ const CatalogSection = () => {
                     <div className="absolute bottom-3 left-3 bg-neutral-900/85 backdrop-blur-md text-white text-[10px] px-3.5 py-1.5 rounded-lg border border-white/10 flex items-center gap-2 shadow-md max-w-[65%] truncate">
                       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
                       <span className="uppercase tracking-wider font-semibold truncate">
-                        {activeCanvasView === 'ai'
+                        {selectedProduct
+                          ? `100% Overlay Fit: ${selectedProduct.name} (Click again or X to remove)`
+                          : activeCanvasView === 'ai'
                           ? `AI Generated | Product Placed: ${selectedProduct?.name || 'Item'}`
-                          : 'Original Room Canvas | Click any product on left to place it with AI'}
+                          : 'Original Room Canvas | Click any product on left to fit it 100%'}
                       </span>
                     </div>
 
