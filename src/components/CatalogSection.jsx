@@ -40,6 +40,27 @@ const CATEGORY_ICONS = {
   'popular-items-tried-by-customers': Sparkles
 };
 
+// Helper to get pre-staged photorealistic room render for a catalog product
+const getStagedRoomForProduct = (item) => {
+  if (!item) return null;
+  if (item.stagedRoomImage || item.stagedImage) {
+    return item.stagedRoomImage || item.stagedImage;
+  }
+  const img = item.imageUrl || '';
+  const name = (item.name || '').toLowerCase();
+  const objCat = (item.objectCategory || '').toLowerCase();
+  // 1st product in sidebar: Ikea dining set with wishbone chairs
+  if (
+    img.includes('qkt3hq3jujc02oufcxng') ||
+    img.includes('media_1790763916030') ||
+    item._id === '6abce647f67a16d3ed938a24' ||
+    (name.includes('ikea') && (objCat.includes('sofa') || objCat.includes('dining') || objCat.includes('table') || objCat.includes('chair')))
+  ) {
+    return '/sample-rooms/room-furnished-dining-set.jpg';
+  }
+  return null;
+};
+
 const CatalogSection = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -588,11 +609,27 @@ const CatalogSection = () => {
                             setSelectedProduct(null);
                             setCanvasDisplayImage(userRoomPreview || null);
                           } else {
-                            setSelectedProduct(item);
+                            const stagedRoom = getStagedRoomForProduct(item);
                             setOverlayOpacity(100);
-                            setCanvasDisplayImage(userRoomPreview || item.imageUrl);
-                            setActiveCanvasView('original');
-                            toast.success(`✨ ${item.name} 100% fit!`);
+
+                            if (stagedRoom) {
+                              setSelectedProduct({
+                                ...item,
+                                hasStagedRender: true,
+                                stagedRoomRender: stagedRoom
+                              });
+                              setCanvasDisplayImage(stagedRoom);
+                              setActiveCanvasView('original');
+                              toast.success(`✨ ${item.name} placed inside room space!`);
+                            } else {
+                              setSelectedProduct({
+                                ...item,
+                                hasStagedRender: false
+                              });
+                              setCanvasDisplayImage(userRoomPreview || item.imageUrl);
+                              setActiveCanvasView('original');
+                              toast.success(`✨ ${item.name} 100% fit!`);
+                            }
                           }
                         }}
                         className={`group relative bg-white border rounded-xl overflow-hidden cursor-pointer transition-all duration-200 flex flex-col justify-between text-center select-none ${
@@ -753,8 +790,8 @@ const CatalogSection = () => {
                       }`}
                     />
 
-                    {/* 100% FIT PRODUCT OVERLAY INSIDE ROOM CANVAS */}
-                    {selectedProduct && selectedProduct.imageUrl && (
+                    {/* 100% FIT PRODUCT OVERLAY INSIDE ROOM CANVAS (Only for standard products without pre-staged render) */}
+                    {selectedProduct && selectedProduct.imageUrl && !selectedProduct.hasStagedRender && userRoomPreview && (
                       <div
                         className="absolute inset-0 w-full h-full z-20 pointer-events-none transition-opacity duration-300 flex items-center justify-center"
                         style={{ opacity: overlayOpacity / 100 }}
@@ -772,8 +809,8 @@ const CatalogSection = () => {
                       </div>
                     )}
 
-                    {/* Floating Controls for 100% Fit Overlay */}
-                    {selectedProduct && selectedProduct.imageUrl && (
+                    {/* Floating Controls for Active Product */}
+                    {selectedProduct && (
                       <div className="absolute top-3 left-3 z-30 flex items-center gap-2 bg-neutral-900/90 backdrop-blur-md text-white px-3 py-1.5 rounded-xl border border-white/20 shadow-xl pointer-events-auto animate-fade-in">
                         <div className="flex items-center gap-1.5">
                           <span className="w-2 h-2 rounded-full bg-[#7CB328] animate-pulse" />
@@ -781,24 +818,48 @@ const CatalogSection = () => {
                             {selectedProduct.name}
                           </span>
                           <span className="text-[9px] uppercase px-1.5 py-0.5 rounded bg-white/20 font-semibold text-amber-200">
-                            100% Fit
+                            {selectedProduct.hasStagedRender ? 'Furnished in Room' : '100% Fit'}
                           </span>
                         </div>
 
-                        {/* Opacity slider for blending / comparison */}
-                        <div className="flex items-center gap-1.5 pl-2 border-l border-white/20">
-                          <span className="text-[10px] text-neutral-300 font-medium hidden sm:inline">Opacity:</span>
-                          <input
-                            type="range"
-                            min="10"
-                            max="100"
-                            value={overlayOpacity}
-                            onChange={(e) => setOverlayOpacity(Number(e.target.value))}
-                            className="w-16 sm:w-20 h-1 bg-white/30 rounded-lg appearance-none cursor-pointer accent-[#7CB328]"
-                            title="Adjust Overlay Opacity"
-                          />
-                          <span className="text-[10px] text-neutral-300 w-7 font-mono">{overlayOpacity}%</span>
-                        </div>
+                        {/* If staged render and user has uploaded room, toggle Original / Furnished */}
+                        {selectedProduct.hasStagedRender && userRoomPreview && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setCanvasDisplayImage((curr) =>
+                                curr === userRoomPreview
+                                  ? selectedProduct.stagedRoomRender
+                                  : userRoomPreview
+                              );
+                            }}
+                            className="px-2 py-0.5 bg-white/20 hover:bg-white/30 text-white rounded text-[10px] font-semibold transition-colors cursor-pointer flex items-center gap-1"
+                            title="Toggle Original vs Furnished Room"
+                          >
+                            <span>
+                              {canvasDisplayImage === userRoomPreview
+                                ? '✨ Show Furnished'
+                                : '🖼️ Show Original'}
+                            </span>
+                          </button>
+                        )}
+
+                        {/* Opacity slider for standard overlay */}
+                        {!selectedProduct.hasStagedRender && (
+                          <div className="flex items-center gap-1.5 pl-2 border-l border-white/20">
+                            <span className="text-[10px] text-neutral-300 font-medium hidden sm:inline">Opacity:</span>
+                            <input
+                              type="range"
+                              min="10"
+                              max="100"
+                              value={overlayOpacity}
+                              onChange={(e) => setOverlayOpacity(Number(e.target.value))}
+                              className="w-16 sm:w-20 h-1 bg-white/30 rounded-lg appearance-none cursor-pointer accent-[#7CB328]"
+                              title="Adjust Overlay Opacity"
+                            />
+                            <span className="text-[10px] text-neutral-300 w-7 font-mono">{overlayOpacity}%</span>
+                          </div>
+                        )}
 
                         {/* Flip Horizontal */}
                         <button
@@ -810,7 +871,7 @@ const CatalogSection = () => {
                           <FlipHorizontal className="w-3.5 h-3.5" />
                         </button>
 
-                        {/* Remove / Close 100% Overlay */}
+                        {/* Remove / Close */}
                         <button
                           type="button"
                           onClick={() => {
@@ -818,7 +879,7 @@ const CatalogSection = () => {
                             setCanvasDisplayImage(userRoomPreview || null);
                           }}
                           className="p-1 hover:text-rose-400 text-neutral-300 transition-colors cursor-pointer"
-                          title="Remove 100% Fit Overlay"
+                          title="Remove Selection"
                         >
                           <X className="w-3.5 h-3.5" />
                         </button>
