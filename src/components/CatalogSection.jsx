@@ -29,7 +29,6 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const DEFAULT_ROOM_CANVAS = 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1400&auto=format&fit=crop';
 
 // Category Icon Mapping
 const CATEGORY_ICONS = {
@@ -62,8 +61,8 @@ const CatalogSection = () => {
 
   // User Uploaded Room Image State & Canvas Display State
   const [userRoomImage, setUserRoomImage] = useState(null);
-  const [userRoomPreview, setUserRoomPreview] = useState(DEFAULT_ROOM_CANVAS);
-  const [canvasDisplayImage, setCanvasDisplayImage] = useState(DEFAULT_ROOM_CANVAS);
+  const [userRoomPreview, setUserRoomPreview] = useState(null);
+  const [canvasDisplayImage, setCanvasDisplayImage] = useState(null);
   const [aiGeneratedImage, setAiGeneratedImage] = useState(null);
   const [activeCanvasView, setActiveCanvasView] = useState('original'); // 'original' | 'ai'
   const [fitMode, setFitMode] = useState('cover'); // 'cover' (100% frame fill) | 'contain' (full uncropped view)
@@ -587,15 +586,13 @@ const CatalogSection = () => {
                         onClick={() => {
                           if (isSelected) {
                             setSelectedProduct(null);
+                            setCanvasDisplayImage(userRoomPreview || null);
                           } else {
                             setSelectedProduct(item);
                             setOverlayOpacity(100);
-                            if (!canvasDisplayImage) {
-                              setCanvasDisplayImage(userRoomPreview || DEFAULT_ROOM_CANVAS);
-                              setUserRoomPreview(userRoomPreview || DEFAULT_ROOM_CANVAS);
-                            }
+                            setCanvasDisplayImage(userRoomPreview || item.imageUrl);
                             setActiveCanvasView('original');
-                            toast.success(`✨ ${item.name} 100% fit over room!`);
+                            toast.success(`✨ ${item.name} 100% fit!`);
                           }
                         }}
                         className={`group relative bg-white border rounded-xl overflow-hidden cursor-pointer transition-all duration-200 flex flex-col justify-between text-center select-none ${
@@ -816,7 +813,10 @@ const CatalogSection = () => {
                         {/* Remove / Close 100% Overlay */}
                         <button
                           type="button"
-                          onClick={() => setSelectedProduct(null)}
+                          onClick={() => {
+                            setSelectedProduct(null);
+                            setCanvasDisplayImage(userRoomPreview || null);
+                          }}
                           className="p-1 hover:text-rose-400 text-neutral-300 transition-colors cursor-pointer"
                           title="Remove 100% Fit Overlay"
                         >
