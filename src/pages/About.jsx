@@ -41,7 +41,7 @@ const About = () => {
             Pioneering Thoughtful Spaces Designed for Timeless Living
           </h1>
           <p className="text-base sm:text-lg text-studio-muted leading-relaxed font-light">
-            Founded in 2014, aiterior is a bespoke residential interior architecture practice combining AI spatial design with master craftsmanship.
+            Founded in 2026, aiterior is a bespoke residential interior architecture practice combining AI spatial design with master craftsmanship.
             We treat every home as a living sanctuary, balancing raw organic textures with quiet modernist proportions.
           </p>
         </div>
