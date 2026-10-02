@@ -169,7 +169,7 @@ const FurnitureTryOnShowcase = () => {
     ? customRoomImage
     : viewMode === 'empty'
     ? '/sample-rooms/room-showcase.jpg'
-    : selectedItem.roomImage || selectedItem.image || selectedItem.mainImage || '/sample-rooms/room-furnished-sofa.jpg';
+    : selectedItem.roomImage || selectedItem.stagedRoomImage || selectedItem.image || selectedItem.imageUrl || selectedItem.mainImage || '/sample-rooms/room-furnished-sofa.jpg';
 
   return (
     <section className="relative bg-[#FAF9F5] border-b border-neutral-200/80 pt-10 pb-14 sm:pt-14 sm:pb-20 overflow-hidden font-sans">
@@ -375,7 +375,7 @@ const FurnitureTryOnShowcase = () => {
 
                     {/* Furniture Cutout Image with Blend */}
                     <img
-                      src={selectedItem.image}
+                      src={selectedItem.image || selectedItem.imageUrl}
                       alt={selectedItem.name}
                       className="max-h-40 sm:max-h-56 md:max-h-68 max-w-[85vw] sm:max-w-md object-contain mix-blend-multiply drop-shadow-2xl select-none"
                       draggable={false}
@@ -489,7 +489,7 @@ const FurnitureTryOnShowcase = () => {
             {displayItems.map((item, idx) => {
               const itemId = item._id || item.id || `item-${idx}`;
               const itemName = item.name || item.title || 'Studio Project';
-              const itemImg = item.image || item.mainImage || '';
+              const itemImg = item.image || item.imageUrl || item.mainImage || '';
               const itemBrand = item.brand || 'Aura Studio';
               const itemTime = item.time || 'Recently';
 
