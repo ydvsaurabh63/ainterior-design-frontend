@@ -26,13 +26,11 @@ const FurnitureTryOnShowcase = () => {
   const isPausedRef = useRef(false);
   const resumeTimeoutRef = useRef(null);
 
-  // Dynamic products list from database / fallback
-  const [itemsList, setItemsList] = useState(furnitureTryOnItems);
+  // Dynamic products list from database (only admin added products)
+  const [itemsList, setItemsList] = useState([]);
 
-  // Default active item is LILLEHEM (item 5, index 4) as in the reference image
-  const [selectedItem, setSelectedItem] = useState(
-    furnitureTryOnItems.find((item) => item.defaultSelected) || furnitureTryOnItems[4] || furnitureTryOnItems[0]
-  );
+  // Default active item is set from live items
+  const [selectedItem, setSelectedItem] = useState(null);
 
   // Duplicate items for seamless infinite marquee loop
   const displayItems = itemsList.length > 0 ? [...itemsList, ...itemsList] : [];
@@ -169,7 +167,7 @@ const FurnitureTryOnShowcase = () => {
     ? customRoomImage
     : viewMode === 'empty'
     ? '/sample-rooms/room-showcase.jpg'
-    : selectedItem.roomImage || selectedItem.stagedRoomImage || selectedItem.image || selectedItem.imageUrl || selectedItem.mainImage || '/sample-rooms/room-furnished-sofa.jpg';
+    : selectedItem?.roomImage || selectedItem?.stagedRoomImage || selectedItem?.image || selectedItem?.imageUrl || selectedItem?.mainImage || '/sample-rooms/room-furnished-sofa.jpg';
 
   return (
     <section className="relative bg-[#FAF9F5] border-b border-neutral-200/80 pt-10 pb-14 sm:pt-14 sm:pb-20 overflow-hidden font-sans">
@@ -238,43 +236,29 @@ const FurnitureTryOnShowcase = () => {
               <span>246 try-ons today</span>
             </div>
 
-            {/* Interactive helper pills */}
-            <div className="mt-5 pt-4 sm:mt-6 sm:pt-5 border-t border-neutral-200/70 flex flex-wrap items-center gap-1.5 sm:gap-2 max-w-md">
-              <span className="text-[10px] sm:text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">Quick Try:</span>
-              <button
-                type="button"
-                onClick={() => handleSelectPreset(furnitureTryOnItems[4])}
-                className={`text-[11px] sm:text-xs px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full transition-all border ${
-                  selectedItem.id === 'lillehem-modular-sofa'
-                    ? 'bg-[#84cc16]/15 border-[#84cc16] text-neutral-900 font-bold'
-                    : 'bg-white border-neutral-200 text-neutral-600 hover:border-neutral-300'
-                }`}
-              >
-                IKEA LILLEHEM Sofa
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSelectPreset(furnitureTryOnItems[8])}
-                className={`text-[11px] sm:text-xs px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full transition-all border ${
-                  selectedItem.id === 'solid-wood-armchair'
-                    ? 'bg-[#84cc16]/15 border-[#84cc16] text-neutral-900 font-bold'
-                    : 'bg-white border-neutral-200 text-neutral-600 hover:border-neutral-300'
-                }`}
-              >
-                Oak Armchair
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSelectPreset(furnitureTryOnItems[0])}
-                className={`text-[11px] sm:text-xs px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full transition-all border ${
-                  selectedItem.id === 'latitude-run-sectional'
-                    ? 'bg-[#84cc16]/15 border-[#84cc16] text-neutral-900 font-bold'
-                    : 'bg-white border-neutral-200 text-neutral-600 hover:border-neutral-300'
-                }`}
-              >
-                Dark Sectional
-              </button>
-            </div>
+            {/* Dynamic Quick Try pills from live admin products */}
+            {itemsList.length > 0 && (
+              <div className="mt-5 pt-4 sm:mt-6 sm:pt-5 border-t border-neutral-200/70 flex flex-wrap items-center gap-1.5 sm:gap-2 max-w-md">
+                <span className="text-[10px] sm:text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">Quick Try:</span>
+                {itemsList.slice(0, 3).map((item) => {
+                  const isItemActive = selectedItem?._id === item._id || selectedItem?.name === item.name;
+                  return (
+                    <button
+                      key={item._id || item.id || item.name}
+                      type="button"
+                      onClick={() => handleSelectPreset(item)}
+                      className={`text-[11px] sm:text-xs px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full transition-all border ${
+                        isItemActive
+                          ? 'bg-[#84cc16]/15 border-[#84cc16] text-neutral-900 font-bold'
+                          : 'bg-white border-neutral-200 text-neutral-600 hover:border-neutral-300'
+                      }`}
+                    >
+                      {item.brand ? `${item.brand} ` : ''}{item.name}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* RIGHT COLUMN: The Room Showcase (The 2nd Image) with Furniture Preview */}
@@ -363,7 +347,7 @@ const FurnitureTryOnShowcase = () => {
               {customRoomImage && viewMode === 'furnished' && (
                 <AnimatePresence mode="wait">
                   <motion.div
-                    key={`placed-furniture-${selectedItem.id}`}
+                    key={`placed-furniture-${selectedItem?._id || selectedItem?.id || 'active'}`}
                     initial={{ opacity: 0, scale: 0.88, y: 15 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.92 }}
@@ -375,8 +359,8 @@ const FurnitureTryOnShowcase = () => {
 
                     {/* Furniture Cutout Image with Blend */}
                     <img
-                      src={selectedItem.image || selectedItem.imageUrl}
-                      alt={selectedItem.name}
+                      src={selectedItem?.image || selectedItem?.imageUrl || ''}
+                      alt={selectedItem?.name || ''}
                       className="max-h-40 sm:max-h-56 md:max-h-68 max-w-[85vw] sm:max-w-md object-contain mix-blend-multiply drop-shadow-2xl select-none"
                       draggable={false}
                     />
@@ -385,7 +369,7 @@ const FurnitureTryOnShowcase = () => {
               )}
 
               {/* Interactive Hotspot Marker on furniture in room */}
-              {viewMode === 'furnished' && showHotspot && (
+              {viewMode === 'furnished' && showHotspot && selectedItem && (
                 <div
                   className={`absolute z-20 pointer-events-auto transition-all duration-300 ${
                     customRoomImage
@@ -401,10 +385,10 @@ const FurnitureTryOnShowcase = () => {
 
                     {/* Tooltip on hover */}
                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2.5 bg-neutral-950/95 text-white text-xs rounded-xl shadow-2xl border border-white/10 opacity-0 group-hover/spot:opacity-100 transition-opacity pointer-events-none backdrop-blur-md">
-                      <p className="font-bold text-white text-[11px] truncate">{selectedItem.name || selectedItem.title}</p>
+                      <p className="font-bold text-white text-[11px] truncate">{selectedItem?.name || selectedItem?.title || ''}</p>
                       <div className="flex justify-between items-center text-[10px] text-neutral-300 mt-1">
-                        <span>{selectedItem.brand || 'Aura Studio'}</span>
-                        <span className="text-[#a3e635] font-mono font-semibold">{selectedItem.price || 'Featured'}</span>
+                        <span>{selectedItem?.brand || 'Aura Studio'}</span>
+                        <span className="text-[#a3e635] font-mono font-semibold">{selectedItem?.price || 'Featured'}</span>
                       </div>
                     </div>
                   </div>
@@ -412,22 +396,23 @@ const FurnitureTryOnShowcase = () => {
               )}
 
               {/* FLOATING PILL AT BOTTOM OVERLAY (Exactly as shown in Image 1) */}
-              <div className="absolute bottom-2 left-2 right-2 sm:bottom-5 sm:left-5 sm:right-5 z-20">
-                <div className="bg-[#151614]/90 backdrop-blur-md text-white rounded-full py-1.5 px-3 sm:py-2.5 sm:px-5 flex items-center justify-between gap-2 sm:gap-3 shadow-2xl border border-white/15">
-                  <div className="flex items-center gap-1.5 sm:gap-3.5 min-w-0">
-                    {/* Brand Pill */}
-                    <span className="bg-white text-neutral-950 text-[9px] sm:text-xs font-black px-1.5 py-0.5 sm:px-2 rounded tracking-wider uppercase flex-shrink-0">
-                      {selectedItem.brand || 'Aura Studio'}
-                    </span>
-
-                    {/* Product Name & Dimensions */}
-                    <div className="truncate text-[11px] sm:text-sm font-medium text-neutral-100 flex items-center gap-1.5">
-                      <span className="truncate">{selectedItem.name || selectedItem.title}</span>
-                      <span className="font-mono text-[9px] sm:text-xs text-[#a3e635] font-normal flex-shrink-0">
-                        {selectedItem.dimensions || 'Bespoke Space'}
+              {selectedItem && (
+                <div className="absolute bottom-2 left-2 right-2 sm:bottom-5 sm:left-5 sm:right-5 z-20">
+                  <div className="bg-[#151614]/90 backdrop-blur-md text-white rounded-full py-1.5 px-3 sm:py-2.5 sm:px-5 flex items-center justify-between gap-2 sm:gap-3 shadow-2xl border border-white/15">
+                    <div className="flex items-center gap-1.5 sm:gap-3.5 min-w-0">
+                      {/* Brand Pill */}
+                      <span className="bg-white text-neutral-950 text-[9px] sm:text-xs font-black px-1.5 py-0.5 sm:px-2 rounded tracking-wider uppercase flex-shrink-0">
+                        {selectedItem?.brand || 'Aura Studio'}
                       </span>
+
+                      {/* Product Name & Dimensions */}
+                      <div className="truncate text-[11px] sm:text-sm font-medium text-neutral-100 flex items-center gap-1.5">
+                        <span className="truncate">{selectedItem?.name || selectedItem?.title}</span>
+                        <span className="font-mono text-[9px] sm:text-xs text-[#a3e635] font-normal flex-shrink-0">
+                          {selectedItem?.dimensions || 'Bespoke Space'}
+                        </span>
+                      </div>
                     </div>
-                  </div>
 
                   {/* Right Button: "Inquire →" */}
                   <button
