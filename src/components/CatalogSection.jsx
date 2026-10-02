@@ -40,25 +40,10 @@ const CATEGORY_ICONS = {
   'popular-items-tried-by-customers': Sparkles
 };
 
-// Helper to get pre-staged photorealistic room render for a catalog product
+// Helper to get pre-staged photorealistic room render for a catalog product (only if uploaded by admin)
 const getStagedRoomForProduct = (item) => {
   if (!item) return null;
-  if (item.stagedRoomImage || item.stagedImage) {
-    return item.stagedRoomImage || item.stagedImage;
-  }
-  const img = item.imageUrl || '';
-  const name = (item.name || '').toLowerCase();
-  const objCat = (item.objectCategory || '').toLowerCase();
-  // 1st product in sidebar: Ikea dining set with wishbone chairs
-  if (
-    img.includes('qkt3hq3jujc02oufcxng') ||
-    img.includes('media_1790763916030') ||
-    item._id === '6abce647f67a16d3ed938a24' ||
-    (name.includes('ikea') && (objCat.includes('sofa') || objCat.includes('dining') || objCat.includes('table') || objCat.includes('chair')))
-  ) {
-    return '/sample-rooms/room-furnished-dining-set.jpg';
-  }
-  return null;
+  return item.stagedRoomImage || item.stagedImage || null;
 };
 
 const CatalogSection = () => {
@@ -647,7 +632,7 @@ const CatalogSection = () => {
                             loading="lazy"
                             onError={(e) => {
                               e.target.onerror = null;
-                              e.target.src = 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=800&auto=format&fit=crop';
+                              e.target.style.opacity = '0.3';
                             }}
                           />
 
