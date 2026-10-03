@@ -63,7 +63,6 @@ const FurnitureTryOnShowcase = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [viewMode, setViewMode] = useState('furnished'); // 'furnished' | 'empty'
   const [customRoomImage, setCustomRoomImage] = useState(null);
-  const [showHotspot, setShowHotspot] = useState(true);
 
   // Smooth continuous auto-scroll moving products right to left
   useEffect(() => {
@@ -236,29 +235,7 @@ const FurnitureTryOnShowcase = () => {
               <span>246 try-ons today</span>
             </div>
 
-            {/* Dynamic Quick Try pills from live admin products */}
-            {itemsList.length > 0 && (
-              <div className="mt-5 pt-4 sm:mt-6 sm:pt-5 border-t border-neutral-200/70 flex flex-wrap items-center gap-1.5 sm:gap-2 max-w-md">
-                <span className="text-[10px] sm:text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">Quick Try:</span>
-                {itemsList.slice(0, 3).map((item) => {
-                  const isItemActive = selectedItem?._id === item._id || selectedItem?.name === item.name;
-                  return (
-                    <button
-                      key={item._id || item.id || item.name}
-                      type="button"
-                      onClick={() => handleSelectPreset(item)}
-                      className={`text-[11px] sm:text-xs px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full transition-all border ${
-                        isItemActive
-                          ? 'bg-[#84cc16]/15 border-[#84cc16] text-neutral-900 font-bold'
-                          : 'bg-white border-neutral-200 text-neutral-600 hover:border-neutral-300'
-                      }`}
-                    >
-                      {item.brand ? `${item.brand} ` : ''}{item.name}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+
           </div>
 
           {/* RIGHT COLUMN: The Room Showcase (The 2nd Image) with Furniture Preview */}
@@ -368,66 +345,12 @@ const FurnitureTryOnShowcase = () => {
                 </AnimatePresence>
               )}
 
-              {/* Interactive Hotspot Marker on furniture in room */}
-              {viewMode === 'furnished' && showHotspot && selectedItem && (
-                <div
-                  className={`absolute z-20 pointer-events-auto transition-all duration-300 ${
-                    customRoomImage
-                      ? 'bottom-[34%] left-1/2 -translate-x-1/2'
-                      : 'bottom-[28%] left-[45%]'
-                  }`}
-                >
-                  <div className="relative group/spot cursor-pointer">
-                    <span className="animate-ping absolute inline-flex h-6 w-6 rounded-full bg-white opacity-60"></span>
-                    <div className="relative inline-flex items-center justify-center w-6 h-6 rounded-full bg-white/90 text-neutral-900 shadow-lg border border-white">
-                      <span className="w-2 h-2 rounded-full bg-[#84cc16]"></span>
-                    </div>
 
-                    {/* Tooltip on hover */}
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2.5 bg-neutral-950/95 text-white text-xs rounded-xl shadow-2xl border border-white/10 opacity-0 group-hover/spot:opacity-100 transition-opacity pointer-events-none backdrop-blur-md">
-                      <p className="font-bold text-white text-[11px] truncate">{selectedItem?.name || selectedItem?.title || ''}</p>
-                      <div className="flex justify-between items-center text-[10px] text-neutral-300 mt-1">
-                        <span>{selectedItem?.brand || 'Aura Studio'}</span>
-                        <span className="text-[#a3e635] font-mono font-semibold">{selectedItem?.price || 'Featured'}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
 
-              {/* FLOATING PILL AT BOTTOM OVERLAY (Exactly as shown in Image 1) */}
-              {selectedItem && (
-                <div className="absolute bottom-2 left-2 right-2 sm:bottom-5 sm:left-5 sm:right-5 z-20">
-                  <div className="bg-[#151614]/90 backdrop-blur-md text-white rounded-full py-1.5 px-3 sm:py-2.5 sm:px-5 flex items-center justify-between gap-2 sm:gap-3 shadow-2xl border border-white/15">
-                    <div className="flex items-center gap-1.5 sm:gap-3.5 min-w-0">
-                      {/* Brand Pill */}
-                      <span className="bg-white text-neutral-950 text-[9px] sm:text-xs font-black px-1.5 py-0.5 sm:px-2 rounded tracking-wider uppercase flex-shrink-0">
-                        {selectedItem?.brand || 'Aura Studio'}
-                      </span>
 
-                      {/* Product Name & Dimensions */}
-                      <div className="truncate text-[11px] sm:text-sm font-medium text-neutral-100 flex items-center gap-1.5">
-                        <span className="truncate">{selectedItem?.name || selectedItem?.title}</span>
-                        <span className="font-mono text-[9px] sm:text-xs text-[#a3e635] font-normal flex-shrink-0">
-                          {selectedItem?.dimensions || 'Bespoke Space'}
-                        </span>
-                      </div>
-                    </div>
-
-                  {/* Right Button: "Inquire →" */}
-                  <button
-                    type="button"
-                    onClick={() => navigate('/contact')}
-                    className="flex-shrink-0 inline-flex items-center gap-1 text-[11px] sm:text-sm font-bold text-[#84cc16] hover:text-[#a3e635] hover:underline transition-all group"
-                  >
-                    <span>Inquire</span>
-                    <span className="group-hover:translate-x-1 transition-transform">→</span>
-                  </button>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
+      </div>
 
         {/* BOTTOM CAROUSEL / ROW OF FURNITURE PRODUCTS (Exactly as shown in Image 1) */}
         <div className="mt-8 sm:mt-12 pt-5 sm:pt-6 border-t border-neutral-200/80">

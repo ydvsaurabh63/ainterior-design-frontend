@@ -124,18 +124,6 @@ const FurniturePairingShowcase = () => {
         className="hidden"
       />
 
-      {/* Subtle architectural graph paper grid background matching the screenshot */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-40"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, rgba(0, 0, 0, 0.06) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(0, 0, 0, 0.06) 1px, transparent 1px)
-          `,
-          backgroundSize: '24px 24px'
-        }}
-      />
-
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
           
