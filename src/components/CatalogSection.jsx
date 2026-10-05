@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { catalogApi } from '../services/api';
 import { interiorAIService } from '../services/interiorAIService';
 import { CLIENT_CATEGORIES, getObjectsForClientCategory } from '../constants/catalogCategories';
@@ -47,6 +48,7 @@ const getStagedRoomForProduct = (item) => {
 };
 
 const CatalogSection = () => {
+  const [searchParams] = useSearchParams();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -270,6 +272,27 @@ const CatalogSection = () => {
     fetchPopularItems();
   }, []);
 
+  // Sync category with URL query param if present
+  useEffect(() => {
+    const catQuery = searchParams.get('category');
+    if (catQuery) {
+      const matched = CLIENT_CATEGORIES.find(
+        (c) => c.id === catQuery || c.label.toLowerCase() === catQuery.toLowerCase()
+      );
+      if (matched) {
+        setSelectedClientCategory(matched.label);
+        setSelectedObjectCategory('all');
+        setSelectedProduct(null);
+        setTimeout(() => {
+          const el = document.getElementById('catalog');
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 150);
+      }
+    }
+  }, [searchParams]);
+
   const scrollPopularSlider = (direction) => {
     if (popularSliderRef.current) {
       const scrollAmount = direction === 'left' ? -350 : 350;
@@ -439,11 +462,11 @@ const CatalogSection = () => {
                     </div>
 
                     <div>
-                      <h3 className="font-bold text-xs sm:text-[13px] leading-snug tracking-tight line-clamp-1">
+                      <h3 className="font-bold text-xs sm:text-[13px] leading-snug tracking-tight line-clamp-2">
                         {cat.label}
                       </h3>
                       <span
-                        className={`text-[9px] sm:text-[10px] block mt-1 line-clamp-1 ${
+                        className={`text-[9px] sm:text-[10px] block mt-1 line-clamp-2 ${
                           isSelected ? 'text-neutral-400' : 'text-studio-muted'
                         }`}
                       >
@@ -685,20 +708,20 @@ const CatalogSection = () => {
           <div className="lg:col-span-9 flex flex-col">
             <div className="bg-white border border-studio-border p-3.5 sm:p-4 md:p-5 rounded-2xl flex-1 flex flex-col justify-between shadow-xs">
               {/* Workspace Header */}
-              <div className="flex items-center justify-between pb-2.5 border-b border-studio-border mb-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-studio-border mb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-studio-bronze animate-pulse" />
+                  <div className="w-2 h-2 rounded-full bg-studio-bronze animate-pulse shrink-0" />
                   <span className="text-xs uppercase font-bold tracking-wider text-neutral-900">
                     {userRoomPreview ? 'Your Room Space Canvas' : 'Room Image Workspace'}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
                   {userRoomPreview && (
                     <button
                       type="button"
                       onClick={handleClearUserImage}
-                      className="text-[10px] text-rose-600 hover:text-rose-800 font-medium flex items-center gap-1 transition-colors"
+                      className="text-[10px] sm:text-xs text-rose-600 hover:text-rose-800 font-medium flex items-center gap-1 transition-colors cursor-pointer"
                     >
                       <X className="w-3 h-3" /> Clear Image
                     </button>
@@ -708,24 +731,24 @@ const CatalogSection = () => {
                     <button
                       type="button"
                       onClick={() => setShowUrlInput(true)}
-                      className="text-[10px] text-studio-muted hover:text-studio-bronze font-medium flex items-center gap-1 transition-colors"
+                      className="text-[10px] sm:text-xs text-studio-muted hover:text-studio-bronze font-medium flex items-center gap-1 transition-colors cursor-pointer"
                     >
                       <LinkIcon className="w-3 h-3" />
                       <span>Use Image URL</span>
                     </button>
                   ) : (
-                    <form onSubmit={handleUrlPreview} className="flex items-center gap-1.5">
+                    <form onSubmit={handleUrlPreview} className="flex items-center gap-1.5 w-full sm:w-auto">
                       <input
                         type="url"
                         placeholder="Paste image URL..."
                         value={inputUrl}
                         onChange={(e) => setInputUrl(e.target.value)}
-                        className="px-2.5 py-1 text-xs bg-studio-bg border border-studio-border text-neutral-900 rounded-md focus:outline-none focus:border-studio-bronze"
+                        className="w-36 sm:w-48 px-2.5 py-1 text-xs bg-studio-bg border border-studio-border text-neutral-900 rounded-md focus:outline-none focus:border-studio-bronze"
                       />
                       <button
                         type="submit"
                         disabled={isValidatingUrl || !inputUrl.trim()}
-                        className="px-2.5 py-1 bg-neutral-900 text-white text-[10px] font-semibold uppercase rounded-md disabled:opacity-50"
+                        className="px-2.5 py-1 bg-neutral-900 text-white text-[10px] font-semibold uppercase rounded-md disabled:opacity-50 cursor-pointer"
                       >
                         {isValidatingUrl ? '...' : 'Load'}
                       </button>
@@ -735,7 +758,7 @@ const CatalogSection = () => {
                           setShowUrlInput(false);
                           setInputUrl('');
                         }}
-                        className="p-1 text-studio-muted"
+                        className="p-1 text-studio-muted cursor-pointer"
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -762,7 +785,7 @@ const CatalogSection = () => {
                 onMouseLeave={handleCanvasMouseUp}
                 onTouchMove={handleCanvasTouchMove}
                 onTouchEnd={handleCanvasMouseUp}
-                className="relative w-full aspect-[16/10] sm:aspect-[16/9] max-h-[460px] bg-studio-bg border border-dashed border-studio-border rounded-xl overflow-hidden flex items-center justify-center group select-none"
+                className="relative w-full aspect-[16/9] max-h-[480px] bg-studio-bg border border-dashed border-studio-border rounded-xl overflow-hidden flex items-center justify-center group select-none"
               >
                 {canvasDisplayImage ? (
                   /* ROOM IMAGE DISPLAY (ORIGINAL OR AI REDESIGN) */
@@ -791,83 +814,6 @@ const CatalogSection = () => {
                             transform: overlayFlipped ? 'scaleX(-1)' : 'none'
                           }}
                         />
-                      </div>
-                    )}
-
-                    {/* Floating Controls for Active Product */}
-                    {selectedProduct && (
-                      <div className="absolute top-3 left-3 z-30 flex items-center gap-2 bg-neutral-900/90 backdrop-blur-md text-white px-3 py-1.5 rounded-xl border border-white/20 shadow-xl pointer-events-auto animate-fade-in">
-                        <div className="flex items-center gap-1.5">
-                          <span className="w-2 h-2 rounded-full bg-[#7CB328] animate-pulse" />
-                          <span className="text-[11px] font-bold tracking-wide max-w-[120px] sm:max-w-[170px] truncate">
-                            {selectedProduct.name}
-                          </span>
-                          <span className="text-[9px] uppercase px-1.5 py-0.5 rounded bg-white/20 font-semibold text-amber-200">
-                            {selectedProduct.hasStagedRender ? 'Furnished in Room' : '100% Fit'}
-                          </span>
-                        </div>
-
-                        {/* If staged render and user has uploaded room, toggle Original / Furnished */}
-                        {selectedProduct.hasStagedRender && userRoomPreview && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setCanvasDisplayImage((curr) =>
-                                curr === userRoomPreview
-                                  ? selectedProduct.stagedRoomRender
-                                  : userRoomPreview
-                              );
-                            }}
-                            className="px-2 py-0.5 bg-white/20 hover:bg-white/30 text-white rounded text-[10px] font-semibold transition-colors cursor-pointer flex items-center gap-1"
-                            title="Toggle Original vs Furnished Room"
-                          >
-                            <span>
-                              {canvasDisplayImage === userRoomPreview
-                                ? '✨ Show Furnished'
-                                : '🖼️ Show Original'}
-                            </span>
-                          </button>
-                        )}
-
-                        {/* Opacity slider for standard overlay */}
-                        {!selectedProduct.hasStagedRender && (
-                          <div className="flex items-center gap-1.5 pl-2 border-l border-white/20">
-                            <span className="text-[10px] text-neutral-300 font-medium hidden sm:inline">Opacity:</span>
-                            <input
-                              type="range"
-                              min="10"
-                              max="100"
-                              value={overlayOpacity}
-                              onChange={(e) => setOverlayOpacity(Number(e.target.value))}
-                              className="w-16 sm:w-20 h-1 bg-white/30 rounded-lg appearance-none cursor-pointer accent-[#7CB328]"
-                              title="Adjust Overlay Opacity"
-                            />
-                            <span className="text-[10px] text-neutral-300 w-7 font-mono">{overlayOpacity}%</span>
-                          </div>
-                        )}
-
-                        {/* Flip Horizontal */}
-                        <button
-                          type="button"
-                          onClick={() => setOverlayFlipped((f) => !f)}
-                          className="p-1 hover:text-amber-300 text-neutral-300 transition-colors cursor-pointer"
-                          title="Flip Horizontal"
-                        >
-                          <FlipHorizontal className="w-3.5 h-3.5" />
-                        </button>
-
-                        {/* Remove / Close */}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedProduct(null);
-                            setCanvasDisplayImage(userRoomPreview || null);
-                          }}
-                          className="p-1 hover:text-rose-400 text-neutral-300 transition-colors cursor-pointer"
-                          title="Remove Selection"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
                       </div>
                     )}
 
@@ -922,57 +868,63 @@ const CatalogSection = () => {
                     )}
 
                     {/* Top Right Floating Actions: Fit Mode Toggle & Change Image */}
-                    <div className="absolute top-3 right-3 z-10 opacity-90 group-hover:opacity-100 transition-opacity flex items-center gap-2">
+                    <div className="absolute top-2.5 sm:top-3 right-2.5 sm:right-3 z-10 opacity-95 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 sm:gap-2">
                       <button
                         type="button"
                         onClick={() => setFitMode((m) => (m === 'cover' ? 'contain' : 'cover'))}
-                        className="px-2.5 py-1.5 bg-white/95 hover:bg-white text-neutral-900 text-xs font-bold uppercase tracking-wider rounded-lg shadow-md border border-studio-border flex items-center gap-1.5 backdrop-blur-xs cursor-pointer"
+                        className="px-2 sm:px-2.5 py-1 sm:py-1.5 bg-white/95 hover:bg-white text-neutral-900 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-lg shadow-md border border-studio-border flex items-center gap-1 sm:gap-1.5 backdrop-blur-xs cursor-pointer"
                         title="Toggle Image Fit Mode"
                       >
-                        <span>{fitMode === 'cover' ? '📐 100% Frame Fill' : '🔍 Full Photo View'}</span>
+                        <span className="hidden xs:inline">{fitMode === 'cover' ? '📐 100% Frame Fill' : '🔍 Full Photo View'}</span>
+                        <span className="inline xs:hidden">{fitMode === 'cover' ? '📐 100% Fill' : '🔍 Full View'}</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="px-3 py-1.5 bg-white/95 hover:bg-white text-neutral-900 text-xs font-bold uppercase tracking-wider rounded-lg shadow-md border border-studio-border flex items-center gap-1.5 backdrop-blur-xs cursor-pointer"
+                        className="px-2 sm:px-3 py-1 sm:py-1.5 bg-white/95 hover:bg-white text-neutral-900 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-lg shadow-md border border-studio-border flex items-center gap-1 sm:gap-1.5 backdrop-blur-xs cursor-pointer"
                       >
-                        <Upload className="w-3.5 h-3.5 text-studio-bronze" />
-                        <span>Change Image</span>
+                        <Upload className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-studio-bronze" />
+                        <span className="hidden xs:inline">Change Image</span>
+                        <span className="inline xs:hidden">Change</span>
                       </button>
                     </div>
 
-                    {/* Status Pill overlay */}
-                    <div className="absolute bottom-3 left-3 bg-neutral-900/85 backdrop-blur-md text-white text-[10px] px-3.5 py-1.5 rounded-lg border border-white/10 flex items-center gap-2 shadow-md max-w-[65%] truncate">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                      <span className="uppercase tracking-wider font-semibold truncate">
-                        {selectedProduct
-                          ? `100% Overlay Fit: ${selectedProduct.name} (Click again or X to remove)`
-                          : activeCanvasView === 'ai'
-                          ? `AI Generated | Product Placed: ${selectedProduct?.name || 'Item'}`
-                          : 'Original Room Canvas | Click any product on left to fit it 100%'}
-                      </span>
-                    </div>
+                    {/* Bottom Floating Bar - Sleek Single Row Layout */}
+                    <div className="absolute bottom-2 sm:bottom-3 inset-x-2 sm:inset-x-3 z-10 flex items-center justify-between gap-1.5 sm:gap-2 pointer-events-none">
+                      {/* Status Pill overlay */}
+                      <div className="pointer-events-auto bg-neutral-900/90 backdrop-blur-md text-white text-[9px] sm:text-[10px] px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-white/10 flex items-center gap-1.5 shadow-md max-w-[48%] xs:max-w-[55%] truncate">
+                        <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                        <span className="uppercase tracking-wider font-semibold truncate">
+                          {selectedProduct
+                            ? `Fit: ${selectedProduct.name}`
+                            : activeCanvasView === 'ai'
+                            ? `AI: ${selectedProduct?.name || 'Item'}`
+                            : 'Room Canvas'}
+                        </span>
+                      </div>
 
-                    {/* Bottom Right Re-Generate AI Design Floating Action Button */}
-                    <div className="absolute bottom-3 right-3 z-10">
-                      <button
-                        type="button"
-                        onClick={() => triggerPixVerseAIRedesign(selectedProduct)}
-                        disabled={isRedesigning}
-                        className="px-4 py-2 bg-gradient-to-r from-studio-bronze to-amber-600 hover:from-studio-bronzeDark hover:to-amber-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-xl transition-all duration-300 flex items-center gap-2 active:scale-95 cursor-pointer border border-white/20 backdrop-blur-md disabled:opacity-50"
-                      >
-                        {isRedesigning ? (
-                          <>
-                            <RefreshCw className="w-4 h-4 animate-spin text-white" />
-                            <span>Generating...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Wand2 className="w-4 h-4 text-amber-200" />
-                            <span>✨ Re-Generate AI Design</span>
-                          </>
-                        )}
-                      </button>
+                      {/* Re-Generate AI Design Floating Action Button */}
+                      <div className="pointer-events-auto flex items-center justify-end shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => triggerPixVerseAIRedesign(selectedProduct)}
+                          disabled={isRedesigning}
+                          className="px-2.5 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-studio-bronze to-amber-600 hover:from-studio-bronzeDark hover:to-amber-700 text-white text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-lg sm:rounded-xl shadow-lg transition-all duration-300 flex items-center justify-center gap-1 sm:gap-1.5 active:scale-95 cursor-pointer border border-white/20 backdrop-blur-md disabled:opacity-50"
+                        >
+                          {isRedesigning ? (
+                            <>
+                              <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4 animate-spin text-white" />
+                              <span>Generating...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Wand2 className="w-3 h-3 sm:w-4 sm:h-4 text-amber-200" />
+                              <span className="hidden xs:inline">✨ Re-Generate AI Design</span>
+                              <span className="inline xs:hidden">✨ AI Redesign</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ) : (
@@ -1017,13 +969,14 @@ const CatalogSection = () => {
 
               {/* Bottom Guidance Bar */}
               <div className="mt-3 pt-2.5 border-t border-studio-border/70 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-studio-muted">
-                <span>
+                <span className="truncate">
                   Active Scope: <strong className="text-neutral-900">{selectedClientCategory}</strong>
                 </span>
-                <span>
+                <span className="truncate">
                   {selectedProduct ? (
-                    <span className="text-studio-bronze font-bold flex items-center gap-1">
-                      <Sparkles className="w-3.5 h-3.5" /> Selected Product: {selectedProduct.name}
+                    <span className="text-studio-bronze font-bold flex items-center gap-1 truncate">
+                      <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                      <span className="truncate">Selected Product: {selectedProduct.name}</span>
                     </span>
                   ) : (
                     'Select any product in the left sidebar to pair with room'

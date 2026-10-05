@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Logo from './Logo';
+import { CLIENT_CATEGORIES } from '../constants/catalogCategories';
 import {
   Phone,
   Mail,
@@ -120,38 +121,16 @@ const Footer = () => {
               Categories
             </p>
             <ul className="space-y-2.5 text-sm">
-              <li>
-                <Link
-                  to="/projects/living-room"
-                  className="text-stone-400 hover:text-studio-bronzeLight transition-colors inline-flex items-center gap-1.5"
-                >
-                  <span>Living Room Interiors</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/projects/bedroom"
-                  className="text-stone-400 hover:text-studio-bronzeLight transition-colors inline-flex items-center gap-1.5"
-                >
-                  <span>Master Bedrooms</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/projects/full-home"
-                  className="text-stone-400 hover:text-studio-bronzeLight transition-colors inline-flex items-center gap-1.5"
-                >
-                  <span>Full Home Turnkey</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/projects/furniture"
-                  className="text-stone-400 hover:text-studio-bronzeLight transition-colors inline-flex items-center gap-1.5"
-                >
-                  <span>Bespoke Furniture</span>
-                </Link>
-              </li>
+              {CLIENT_CATEGORIES.map((cat) => (
+                <li key={cat.id}>
+                  <Link
+                    to={`/catalog?category=${cat.id}`}
+                    className="text-stone-400 hover:text-studio-bronzeLight transition-colors inline-flex items-center gap-1.5"
+                  >
+                    <span>{cat.label}</span>
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
