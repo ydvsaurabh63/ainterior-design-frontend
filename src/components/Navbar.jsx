@@ -43,15 +43,15 @@ const Navbar = () => {
       <header
         className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
           isScrolled
-            ? 'glass-nav py-3 sm:py-3.5 shadow-sm'
-            : 'bg-studio-bg/95 md:bg-studio-bg/85 md:backdrop-blur-sm py-4 sm:py-5'
+            ? 'glass-nav py-2 sm:py-2.5 shadow-sm'
+            : 'bg-studio-bg/95 md:bg-studio-bg/85 md:backdrop-blur-sm py-2.5 sm:py-3'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             {/* Brand Logo */}
             <Link to="/" className="z-50 hover:opacity-90 transition-opacity">
-              <Logo size="md" />
+              <Logo size="sm" />
             </Link>
 
             {/* Desktop Navigation */}
