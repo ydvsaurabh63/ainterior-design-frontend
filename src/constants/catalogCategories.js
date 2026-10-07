@@ -92,3 +92,17 @@ export const getObjectsForClientCategory = (clientCategoryLabel) => {
   );
   return matched ? matched.objects : [];
 };
+
+export const getAvailableClientCategories = () => {
+  return CLIENT_CATEGORIES;
+};
+
+export const getClientCategoryMeta = (categoryIdOrLabel) => {
+  if (!categoryIdOrLabel) return null;
+  const normalized = String(categoryIdOrLabel).trim().toLowerCase();
+  return (
+    CLIENT_CATEGORIES.find(
+      (c) => c.id.toLowerCase() === normalized || c.label.toLowerCase() === normalized
+    ) || null
+  );
+};

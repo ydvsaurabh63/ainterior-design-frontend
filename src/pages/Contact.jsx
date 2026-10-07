@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Phone,
@@ -6,16 +7,25 @@ import {
   MapPin,
   Send,
   CheckCircle2,
-  MessageSquare
+  MessageSquare,
+  ChevronDown,
+  Building2,
+  Sparkles
 } from 'lucide-react';
 import { enquiryApi } from '../services/api';
+import { CLIENT_CATEGORIES } from '../constants/catalogCategories';
 import toast from 'react-hot-toast';
 
 const Contact = () => {
+  const [searchParams] = useSearchParams();
+  const clientParam = searchParams.get('client') || searchParams.get('clientId');
+  const categoryParam = searchParams.get('category') || '';
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
     email: '',
+    category: categoryParam || '',
     message: ''
   });
 
@@ -26,23 +36,36 @@ const Contact = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleSelectCategory = (catId) => {
+    setFormData((prev) => ({ ...prev, category: catId }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.name.trim() || !formData.phone.trim() || !formData.email.trim() || !formData.message.trim()) {
-      toast.error('Please fill in all fields');
+    if (!formData.name.trim() || !formData.phone.trim() || !formData.email.trim() || !formData.category || !formData.message.trim()) {
+      toast.error('Please fill in all fields including the sector / category');
       return;
     }
 
     setSubmitting(true);
     try {
-      await enquiryApi.create(formData);
+      await enquiryApi.create({
+        name: formData.name.trim(),
+        phone: formData.phone.trim(),
+        email: formData.email.trim(),
+        category: formData.category,
+        clientCategory: formData.category,
+        message: formData.message.trim(),
+        clientId: clientParam || undefined
+      });
       toast.success('Your enquiry has been submitted successfully!');
       setSubmittedSuccess(true);
       setFormData({
         name: '',
         phone: '',
         email: '',
+        category: '',
         message: ''
       });
     } catch (err) {
@@ -143,6 +166,61 @@ const Contact = () => {
                     onChange={handleChange}
                     className="w-full px-3.5 py-2.5 sm:py-3 bg-studio-bg border border-studio-border text-xs sm:text-sm text-studio-charcoal placeholder-studio-muted/70 focus:outline-none focus:border-studio-bronze transition-colors"
                   />
+                </div>
+              </div>
+
+              {/* Service Sector / Category Selector */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-[11px] sm:text-xs uppercase tracking-wider font-semibold text-studio-charcoal">
+                    Service Sector / Category *
+                  </label>
+                  <span className="text-[10px] text-studio-bronze font-medium">
+                    Auto-routed to specialized studio partners
+                  </span>
+                </div>
+                <div className="relative">
+                  <select
+                    name="category"
+                    required
+                    value={formData.category}
+                    onChange={handleChange}
+                    className="w-full px-3.5 py-2.5 sm:py-3 bg-studio-bg border border-studio-border text-xs sm:text-sm text-studio-charcoal focus:outline-none focus:border-studio-bronze transition-colors cursor-pointer appearance-none font-medium pr-10"
+                  >
+                    <option value="" disabled>-- Select Sector / Category Related To Your Enquiry --</option>
+                    {CLIENT_CATEGORIES.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.label} ({cat.badge})
+                      </option>
+                    ))}
+                    <option value="general-consultation">
+                      General Interior Consultation & Architecture
+                    </option>
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-studio-muted">
+                    <ChevronDown className="w-4 h-4" />
+                  </div>
+                </div>
+
+                {/* Quick Sector Tags for Instant Selection */}
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {CLIENT_CATEGORIES.map((cat) => {
+                    const isSelected = formData.category === cat.id;
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => handleSelectCategory(cat.id)}
+                        className={`text-[10px] sm:text-[11px] px-2.5 py-1 transition-all rounded cursor-pointer border ${
+                          isSelected
+                            ? 'bg-studio-charcoal text-white border-studio-charcoal shadow-xs'
+                            : 'bg-studio-bg text-studio-charcoal border-studio-border hover:border-studio-bronze'
+                        }`}
+                      >
+                        {cat.badge?.split(' ')[0] || '✨'} {cat.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 

@@ -77,20 +77,20 @@ function App() {
           <Route path="/projects/furniture" element={<CategoryProjects />} />
           <Route path="/projects/:categorySlug" element={<CategoryProjects />} />
 
-          {/* Project Details */}
+          
           <Route path="/project/:id" element={<ProjectDetails />} />
 
-          {/* Catalog Module (5 Client Categories & Dynamic Objects) */}
+          
           <Route path="/catalog" element={<Catalog />} />
 
-          {/* Contact & Consultation */}
+          
           <Route path="/contact" element={<Contact />} />
 
-          {/* Redirect deprecated AI routes to Home */}
+          
           <Route path="/try-with-ai" element={<Navigate to="/" replace />} />
           <Route path="/ai-interior-designer" element={<Navigate to="/" replace />} />
 
-          {/* Redirect any legacy /admin route to standalone admin panel */}
+          
           <Route path="/admin/*" element={<AdminPortalRedirect />} />
 
           {/* 404 Catch-All */}
